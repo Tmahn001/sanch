@@ -70,10 +70,15 @@
   .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
   .card{background:#fff;border-radius:18px;border:1px solid #00000012;overflow:hidden;box-shadow:0 12px 24px #00000010;transition:transform .2s ease, box-shadow .2s ease}
   .card:hover{transform:translateY(-4px);box-shadow:0 22px 44px #00000018}
-  .card img{width:100%;height:280px;object-fit:cover;display:block}
+  .card img{width:100%;height:280px;object-fit:cover;display:block;transform-origin:center;transition:transform 6s ease}
+  .card:hover img{transform:scale(1.06)}
   .card .cap{padding:12px 14px}
   .cap .title{font-weight:900}
   .cap .sub{font-size:13px;opacity:.75;margin-top:6px}
+
+  /* Reveal on scroll */
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease, transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
 
   /* FOOTER */
   footer{padding:28px 0;text-align:center;color:#0000008a}
@@ -158,21 +163,21 @@
     <div class="container">
       <h2 class="section-title">San Chan Gallery</h2>
       <div class="gallery">
-        <article class="card">
+        <article class="card reveal">
           <img src="sanch-1.jpg" alt="$SAN with Kabosu statue" />
           <div class="cap">
             <div class="title">$SAN with the Kabosu statue</div>
             <div class="sub">A quiet moment honoring the original Doge. Much respect.</div>
           </div>
         </article>
-        <article class="card">
+        <article class="card reveal">
           <img src="sanch-2.jpg" alt="$SAN with the Doge family Cocoro Neiro and Kabosumama" />
           <div class="cap">
             <div class="title">$SAN with the Doge family — Cocoro Neiro & Kabosumama</div>
             <div class="sub">A heartfelt remembrance gathering. Community, kindness, and wagging tails.</div>
           </div>
         </article>
-        <article class="card">
+        <article class="card reveal">
           <img src="sanch-3.jpg" alt="Do Only Good Everyday" />
           <div class="cap">
             <div class="title">DOGE — Do Only Good Everyday</div>
@@ -190,12 +195,13 @@
   </footer>
 
 <script>
-  // Prefer CA from query (?ca=...), then window.SAN_CA, else placeholder
+  // Prefer CA from query (?ca=...), then window.SAN_CA, else provided default
   (function(){
+    const defaultCA = '0xc00d170Ee01Dd2dd709ab9C8D0B4fBaa248400d8';
     const params = new URLSearchParams(location.search);
     const qsCA = params.get('ca');
     const fromWindow = window.SAN_CA;
-    const ca = (qsCA && qsCA.trim()) || (typeof fromWindow === 'string' && fromWindow.trim()) || 'TBA';
+    const ca = (qsCA && qsCA.trim()) || (typeof fromWindow === 'string' && fromWindow.trim()) || defaultCA;
     const caInput = document.getElementById('caInput');
     caInput.value = ca;
 
@@ -218,6 +224,20 @@
     frame.src = dexSrc;
 
     document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Scroll reveal for gallery cards
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    },{threshold:.2});
+    document.querySelectorAll('.reveal').forEach((el,i)=>{
+      el.style.transitionDelay = (i*80)+'ms';
+      io.observe(el);
+    });
   })();
 </script>
 
