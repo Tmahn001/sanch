@@ -98,6 +98,7 @@
     .logo{font-size:40px}
     .gallery{grid-template-columns:1fr}
     .card img{height:220px}
+    .ratio{padding-top:85%}
   }
 </style>
 </head>
@@ -142,7 +143,6 @@
       <div class="copier">
         <input id="caInput" value="TBA" aria-label="Contract address" />
         <button class="cta copy-btn" id="copyBtn">Copy</button>
-        <button class="cta alt" id="setBtn" title="Set CA via prompt">Set</button>
       </div>
       <div class="hint">Tip: You can also set the CA with <code>?ca=0x123...</code> or by assigning <code>window.SAN_CA</code> before this script runs.</div>
     </div>
@@ -152,7 +152,7 @@
   <section class="section">
     <div class="container">
       <h2 class="section-title">Live Chart</h2>
-      <div class="dex-wrap ratio" id="dexWrap" data-src="https://dexscreener.com/">
+      <div class="dex-wrap ratio" id="dexWrap" data-chain="base">
         <iframe id="dexFrame" title="Dexscreener"></iframe>
       </div>
     </div>
@@ -212,14 +212,13 @@
         caInput.select(); document.execCommand('copy');
       }
     });
-    document.getElementById('setBtn').addEventListener('click', () => {
-      const val = prompt('Paste Contract Address');
-      if(val){ caInput.value = val.trim(); }
-    });
 
-    // Dexscreener src (changeable via data-src)
+    // Dexscreener src using CA - default to Base chain, can override via data-chain attribute
     const dexWrap = document.getElementById('dexWrap');
-    const dexSrc = dexWrap.getAttribute('data-src') || 'https://dexscreener.com/';
+    const chain = dexWrap.getAttribute('data-chain') || 'base';
+    const dexSrc = ca && ca !== 'TBA' 
+      ? `https://dexscreener.com/${chain}/${ca}?embed=1` 
+      : dexWrap.getAttribute('data-src') || 'https://dexscreener.com/';
     const frame = document.getElementById('dexFrame');
     frame.src = dexSrc;
 
