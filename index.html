@@ -152,7 +152,7 @@
   <section class="section">
     <div class="container">
       <h2 class="section-title">Live Chart</h2>
-      <div class="dex-wrap ratio" id="dexWrap" data-chain="base">
+      <div class="dex-wrap ratio" id="dexWrap" data-chain="auto">
         <iframe id="dexFrame" title="Dexscreener"></iframe>
       </div>
     </div>
@@ -213,12 +213,15 @@
       }
     });
 
-    // Dexscreener src using CA - default to Base chain, can override via data-chain attribute
+    // Dexscreener src using CA with chain auto/search fallback
     const dexWrap = document.getElementById('dexWrap');
-    const chain = dexWrap.getAttribute('data-chain') || 'base';
-    const dexSrc = ca && ca !== 'TBA' 
-      ? `https://dexscreener.com/${chain}/${ca}?embed=1` 
-      : dexWrap.getAttribute('data-src') || 'https://dexscreener.com/';
+    const chainParam = (new URLSearchParams(location.search).get('chain')||'').toLowerCase();
+    const chainAttr = (dexWrap.getAttribute('data-chain')||'').toLowerCase();
+    const chain = chainParam || chainAttr || 'auto';
+    const dexSrc = (!ca || ca === 'TBA') ? 'https://dexscreener.com/' :
+      (chain === 'auto' 
+        ? `https://dexscreener.com/search?q=${encodeURIComponent(ca)}`
+        : `https://dexscreener.com/${chain}/${ca}?embed=1`);
     const frame = document.getElementById('dexFrame');
     frame.src = dexSrc;
 
